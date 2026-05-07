@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('書籍詳細')}"></head>
+<body>
+<div th:replace="~{fragments :: mainNav}"></div>
+<main class="sheet container">
+	<p class="msg-ok" th:if="${adminMessage != null and !#strings.isEmpty(adminMessage)}" th:text="${adminMessage}"></p>
+	<p class="msg-err" th:if="${adminError != null and !#strings.isEmpty(adminError)}" th:text="${adminError}"></p>
+	<nav class="breadcrumbs" aria-label="パンくず">
+		<a th:href="@{/books}">書籍一覧</a>
+		<span aria-hidden="true">/</span>
+		<a th:href="@{/}">トップ</a>
+	</nav>
+	<h1 class="page-title" th:text="${book.title}">タイトル</h1>
+	<p class="lead">
+		<span th:text="${book.author}">著者</span>
+		<span> · </span>
+		<span th:text="${book.publisher != null and !#strings.isEmpty(book.publisher)} ? ${book.publisher} : '出版社未設定'">出版社</span>
+	</p>
+
+	<div class="card">
+		<div class="stack">
+			<p><span class="field-label" style="display: inline; margin: 0;">出版日:</span> <span th:text="${book.publishedDate != null ? #temporals.format(book.publishedDate, 'yyyy-MM-dd') : '未設定'}">—</span></p>
+			<p><span class="field-label" style="display: inline; margin: 0;">説明:</span> <span th:text="${book.description != null and !#strings.isEmpty(book.description) ? book.description : 'なし'}">—</span></p>
+			<p style="margin: 0;">
+				<span class="field-label" style="display: inline; margin: 0;">販売URL:</span>
+				<a th:if="${book.salesUrl != null and !#strings.isEmpty(book.salesUrl)}" th:href="${book.salesUrl}" target="_blank" rel="noopener noreferrer" th:text="${book.salesUrl}">url</a>
+				<span class="muted" th:if="${book.salesUrl == null or #strings.isEmpty(book.salesUrl)}">未設定</span>
+			</p>
+		</div>
+	</div>
+
+	<section class="card" sec:authorize="isAuthenticated()">
+		<h2 class="section-title">ブックマーク・読書ステータス</h2>
+		<p class="msg-ok" th:if="${bookmarkMessage != null}" th:text="${bookmarkMessage}">ok</p>
+		<p class="msg-err" th:if="${bookmarkError != null}" th:text="${bookmarkError}">err</p>
+		<p class="msg-ok" th:if="${readingStatusMessage != null}" th:text="${readingStatusMessage}">ok</p>
+		<p class="msg-err" th:if="${readingStatusError != null}" th:text="${readingStatusError}">err</p>
+		<div class="inline-actions">
+			<form th:if="${!bookmarked}" th:action="@{/books/{id}/bookmarks(id=${book.bookId})}" method="post">
+				<button type="submit" class="btn btn--secondary">ブックマークに追加</button>
+			</form>
+			<form th:if="${bookmarked}" th:action="@{/books/{id}/bookmarks(id=${book.bookId})}" method="post">
+				<input type="hidden" name="remove" value="true" />
+				<button type="submit" class="btn btn--secondary">ブックマークを解除</button>
+			</form>
+		</div>
+		<form class="form-stack" style="margin-top: 1rem;" th:action="@{/books/{id}/reading-status(id=${book.bookId})}" method="post">
+			<label for="statusCode">読書ステータス</label>
+			<select id="statusCode" name="statusCode">
+				<option value="0" th:selected="${readingStatusCode == 0}">未設定</option>
+				<option value="1" th:selected="${readingStatusCode == 1}">読みたい</option>
+				<option value="2" th:selected="${readingStatusCode == 2}">読書中</option>
+				<option value="3" th:selected="${readingStatusCode == 3}">読了</option>
+			</select>
+			<div class="form-actions">
+				<button type="submit" class="btn btn--primary">保存</button>
+			</div>
+		</form>
+	</section>
+
+	<section class="card" th:if="${reviewSummary != null}">
+		<h2 class="section-title">レビュー</h2>
+		<p class="muted" th:if="${reviewSummary.totalCount == 0}">まだレビューがありません。</p>
+		<p th:if="${reviewSummary.totalCount > 0}">
+			<span class="field-label" style="display: inline; margin: 0;">平均評価:</span>
+			<strong th:text="${#numbers.formatDecimal(reviewSummary.averageRating, 1, 1)}">0.0</strong> 点
+			（<span th:text="${reviewSummary.totalCount}">0</span> 件）
+		</p>
+
+		<ul class="review-list" th:if="${reviewSummary.totalCount > 0}">
+			<li class="review-item" th:each="row : ${reviewSummary.rows}">
+				<div class="review-meta">
+					<span th:text="${row.userName}">user</span>
+					・ <span th:text="${#temporals.format(row.review.createdAt, 'yyyy-MM-dd HH:mm')}">date</span>
+					・ <span th:text="${row.review.rating} + ' 点'">5点</span>
+					<span th:if="${row.review.spoiler != null and row.review.spoiler == 1}" class="spoiler">ネタバレあり</span>
+				</div>
+				<div th:if="${row.review.comment != null and !#strings.isEmpty(row.review.comment)}" th:text="${row.review.comment}">comment</div>
+				<div class="muted" th:if="${row.review.comment == null or #strings.isEmpty(row.review.comment)}">（コメントなし）</div>
+			</li>
+		</ul>
+
+		<p class="msg-ok" th:if="${reviewSaved}">レビューを保存しました。</p>
+		<p class="msg-err" th:if="${reviewError != null}" th:text="${reviewError}">error</p>
+
+		<div sec:authorize="!isAuthenticated()">
+			<p class="muted"><a th:href="@{/login}">ログイン</a>するとレビューを投稿できます。</p>
+		</div>
+
+		<div sec:authorize="isAuthenticated()">
+			<h3 class="subsection-title" th:if="${reviewSummary.currentUserHasReview}">レビューを編集</h3>
+			<h3 class="subsection-title" th:unless="${reviewSummary.currentUserHasReview}">レビューを投稿</h3>
+			<form class="form-stack" th:action="@{/books/{id}/reviews(id=${book.bookId})}" method="post">
+				<label for="rating">評価（0.5〜5）</label>
+				<select id="rating" name="rating" required>
+					<option th:each="step : ${#numbers.sequence(1, 10)}" th:value="${step * 0.5}" th:text="${#numbers.formatDecimal(step * 0.5, 1, 1)} + ' 点'">1点</option>
+				</select>
+				<label for="comment">コメント（任意、4000文字まで）</label>
+				<textarea id="comment" name="comment" maxlength="4000" placeholder="感想を書いてください"></textarea>
+				<label style="margin-top: 0.75rem; font-weight: 500;">
+					<input type="checkbox" name="spoiler" value="true" />
+					ネタバレを含む
+				</label>
+				<div class="form-actions">
+					<button type="submit" class="btn btn--primary">送信</button>
+				</div>
+			</form>
+		</div>
+	</section>
+</main>
+</body>
+</html>

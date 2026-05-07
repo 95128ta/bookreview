@@ -1,0 +1,10 @@
+# Render: Java は Docker ランタイムを使用（Blueprint 仕様）
+# https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: bookreview
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /actuator/health

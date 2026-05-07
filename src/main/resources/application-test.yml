@@ -1,0 +1,7 @@
+# テスト専用: ファイル H2 と衝突しないようインメモリ DB を使用
+spring:
+  datasource:
+    url: jdbc:h2:mem:bookreview_test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:

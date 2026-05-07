@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head(${form.bookId != null ? '書籍編集' : '書籍新規'})}"></head>
+<body>
+<div th:replace="~{fragments :: mainNav}"></div>
+<main class="sheet container container--form">
+	<h1 class="page-title" th:text="${form.bookId != null} ? '書籍を編集' : '書籍を新規登録'">書籍</h1>
+	<div class="card">
+		<form class="form-stack" th:action="${form.bookId != null} ? @{/admin/books/{bookId}/edit(bookId=${form.bookId})} : @{/admin/books/new}" th:object="${form}" method="post">
+			<input type="hidden" th:if="${form.bookId != null}" th:field="*{bookId}" />
+			<label for="title">タイトル</label>
+			<input id="title" type="text" th:field="*{title}" required />
+			<p class="err" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></p>
+			<label for="author">著者</label>
+			<input id="author" type="text" th:field="*{author}" required />
+			<p class="err" th:if="${#fields.hasErrors('author')}" th:errors="*{author}"></p>
+			<label for="publisher">出版社</label>
+			<input id="publisher" type="text" th:field="*{publisher}" />
+			<label for="description">説明</label>
+			<textarea id="description" th:field="*{description}"></textarea>
+			<label for="publishedDate">出版日</label>
+			<input id="publishedDate" type="date" th:field="*{publishedDate}" />
+			<label for="imagePath">画像パス</label>
+			<input id="imagePath" type="text" th:field="*{imagePath}" />
+			<label for="salesUrl">販売 URL</label>
+			<input id="salesUrl" type="text" th:field="*{salesUrl}" />
+			<div class="form-actions">
+				<button type="submit" class="btn btn--primary">保存</button>
+			</div>
+		</form>
+	</div>
+	<p class="mt-lg"><a th:href="@{/admin/books}">一覧へ戻る</a></p>
+</main>
+</body>
+</html>

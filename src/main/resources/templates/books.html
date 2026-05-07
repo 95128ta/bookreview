@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('書籍一覧')}"></head>
+<body>
+<div th:replace="~{fragments :: mainNav}"></div>
+<main class="sheet container">
+	<h1 class="page-title">書籍一覧</h1>
+	<p class="lead" th:if="${searchActive}">「<span th:text="${query}">q</span>」の検索結果</p>
+	<p class="lead" th:unless="${searchActive}">タイトル・著者・出版社・説明からキーワード検索できます。</p>
+
+	<form class="search-bar" th:action="@{/books}" method="get" role="search">
+		<input type="search" name="q" th:value="${query}" placeholder="キーワードで検索" aria-label="検索キーワード" />
+		<button type="submit" class="btn btn--primary">検索</button>
+		<a th:if="${searchActive}" class="btn btn--secondary" th:href="@{/books}">クリア</a>
+	</form>
+
+	<div class="book-grid" th:if="${!#lists.isEmpty(books)}">
+		<a class="card card--link book-card" th:each="book : ${books}" th:href="@{/books/{id}(id=${book.bookId})}">
+			<div class="title" th:text="${book.title}">タイトル</div>
+			<p class="meta" th:text="|著者: ${book.author}|">著者</p>
+		</a>
+	</div>
+	<p class="muted" th:if="${#lists.isEmpty(books)}">該当する書籍がありません。</p>
+</main>
+</body>
+</html>

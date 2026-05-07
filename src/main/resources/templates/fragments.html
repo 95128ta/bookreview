@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(pageTitle)">
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="light" />
+	<title th:text="|${pageTitle} · bookreview|">bookreview</title>
+	<link rel="stylesheet" th:href="@{/css/app.css}" />
+</head>
+<body>
+<header th:fragment="mainNav" class="site-header">
+	<div class="site-header__float">
+		<div class="site-header__inner">
+			<a class="brand" th:href="@{/}">bookreview</a>
+			<nav class="site-nav" aria-label="メインメニュー">
+				<ul class="nav-links">
+					<li><a th:href="@{/}">トップ</a></li>
+					<li><a th:href="@{/books}">書籍一覧</a></li>
+					<li><a th:href="@{/ranking}">ランキング</a></li>
+					<li sec:authorize="isAuthenticated()"><a th:href="@{/reading}">読書中</a></li>
+					<li sec:authorize="isAuthenticated()"><a th:href="@{/bookmarks}">ブックマーク</a></li>
+					<li sec:authorize="isAuthenticated()"><a th:href="@{/profile}">マイページ</a></li>
+					<li sec:authorize="hasRole('ADMIN')"><a th:href="@{/admin/books}">管理</a></li>
+				</ul>
+			</nav>
+			<div class="site-header__user">
+				<span sec:authorize="isAuthenticated()" class="user-name" sec:authentication="principal.displayName">user</span>
+				<span sec:authorize="isAuthenticated()">
+					<form th:action="@{/logout}" method="post" class="form-inline">
+						<button type="submit" class="btn btn--ghost btn--sm">ログアウト</button>
+					</form>
+				</span>
+				<span sec:authorize="!isAuthenticated()" class="site-header__auth">
+					<a th:href="@{/login}" class="btn btn--signin btn--sm">ログイン</a>
+					<a th:href="@{/register}" class="btn btn--ghost btn--sm">新規登録</a>
+				</span>
+			</div>
+		</div>
+	</div>
+</header>
+</body>
+</html>

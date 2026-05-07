@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('ログイン')}"></head>
+<body>
+<div th:replace="~{fragments :: mainNav}"></div>
+<main class="sheet container container--narrow">
+	<h1 class="page-title">ログイン</h1>
+	<p class="alert alert--error" th:if="${param.error}">ログイン ID またはパスワードが正しくありません。</p>
+	<p class="alert alert--success" th:if="${param.registered}">登録が完了しました。ログインしてください。</p>
+	<div class="card">
+		<form class="form-stack login-form" th:action="@{/login}" method="post">
+			<label for="username">ログイン ID</label>
+			<input id="username" type="text" name="username" autocomplete="username" required />
+			<label for="password">パスワード</label>
+			<input id="password" type="password" name="password" autocomplete="current-password" required />
+			<div class="form-actions">
+				<button type="submit" class="btn btn--login-cta">ログイン</button>
+			</div>
+		</form>
+	</div>
+	<p class="mt-lg muted"><a th:href="@{/register}">新規登録はこちら</a></p>
+</main>
+</body>
+</html>

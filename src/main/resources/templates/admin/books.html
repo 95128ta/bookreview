@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('管理 · 書籍')}"></head>
+<body>
+<div th:replace="~{fragments :: mainNav}"></div>
+<main class="sheet container">
+	<h1 class="page-title">管理: 書籍一覧</h1>
+	<p class="msg-ok" th:if="${adminMessage != null and !#strings.isEmpty(adminMessage)}" th:text="${adminMessage}"></p>
+	<p class="msg-err" th:if="${adminError != null and !#strings.isEmpty(adminError)}" th:text="${adminError}"></p>
+	<p class="form-actions" style="margin-bottom: 1rem;">
+		<a class="btn btn--primary" th:href="@{/admin/books/new}">新規登録</a>
+	</p>
+	<div class="table-wrap" th:if="${!#lists.isEmpty(books)}">
+		<table class="data">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>タイトル</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="book : ${books}">
+					<td th:text="${book.bookId}">1</td>
+					<td th:text="${book.title}">title</td>
+					<td>
+						<a class="btn btn--secondary btn--sm" th:href="@{/admin/books/{id}/edit(id=${book.bookId})}">編集</a>
+						<form class="form-inline" th:action="@{/admin/books/{id}/delete(id=${book.bookId})}" method="post" onsubmit="return confirm('削除しますか？');">
+							<button type="submit" class="btn btn--danger btn--sm">削除</button>
+						</form>
+						<a class="btn btn--secondary btn--sm" th:href="@{/books/{id}(id=${book.bookId})}">公開ページ</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<p class="muted" th:if="${#lists.isEmpty(books)}">書籍がありません。</p>
+
+	<section class="card admin-section">
+		<h2 class="section-title">ユーザーを管理者に昇格</h2>
+		<form class="form-stack" th:action="@{/admin/users/promote}" method="post">
+			<label for="loginId">ログイン ID</label>
+			<input id="loginId" type="text" name="loginId" required />
+			<div class="form-actions">
+				<button type="submit" class="btn btn--primary">昇格</button>
+			</div>
+		</form>
+	</section>
+</main>
+</body>
+</html>

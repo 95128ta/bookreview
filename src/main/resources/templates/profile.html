@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('マイページ')}"></head>
+<body>
+<div th:replace="~{fragments :: mainNav}"></div>
+<main class="sheet container container--form">
+	<h1 class="page-title">マイページ</h1>
+	<p class="msg-ok" th:if="${profileMessage != null and !#strings.isEmpty(profileMessage)}" th:text="${profileMessage}">ok</p>
+	<p class="msg-err" th:if="${profileError != null and !#strings.isEmpty(profileError)}" th:text="${profileError}">err</p>
+
+	<div class="card">
+		<p class="muted" style="margin: 0 0 0.5rem;">ログイン ID</p>
+		<p style="margin: 0 0 1rem; font-weight: 600;" th:text="${loginId}">id</p>
+		<p class="muted" style="margin: 0 0 0.5rem;">表示名</p>
+		<p style="margin: 0;" th:text="${displayName}">name</p>
+		<p class="alert alert--success" style="margin-top: 1rem;" th:if="${admin}">管理者アカウントです。</p>
+		<div class="muted" style="margin-top: 1rem; font-size: 0.9rem;" th:if="${stats != null}">
+			レビュー <strong th:text="${stats.reviewCount}">0</strong> 件 ·
+			ブックマーク <strong th:text="${stats.bookmarkCount}">0</strong> 件 ·
+			読書ステータス <strong th:text="${stats.readingStatusCount}">0</strong> 件
+		</div>
+	</div>
+
+	<section class="card panel">
+		<h2 class="section-title">表示名の変更</h2>
+		<form class="form-stack" th:action="@{/profile/name}" method="post">
+			<label for="userName">新しい表示名（1～100文字）</label>
+			<input id="userName" type="text" name="userName" th:value="${displayName}" required />
+			<div class="form-actions">
+				<button type="submit" class="btn btn--primary">更新</button>
+			</div>
+		</form>
+	</section>
+
+	<section class="card panel">
+		<h2 class="section-title">パスワードの変更</h2>
+		<form class="form-stack" th:action="@{/profile/password}" method="post">
+			<label for="currentPassword">現在のパスワード</label>
+			<input id="currentPassword" type="password" name="currentPassword" autocomplete="current-password" required />
+			<label for="newPassword">新しいパスワード（6文字以上）</label>
+			<input id="newPassword" type="password" name="newPassword" autocomplete="new-password" required />
+			<div class="form-actions">
+				<button type="submit" class="btn btn--primary">変更</button>
+			</div>
+		</form>
+	</section>
+
+	<section class="card panel">
+		<h2 class="section-title">退会</h2>
+		<p class="muted">退会するとアカウントと関連データが削除されます。</p>
+		<form class="form-stack" th:action="@{/profile/withdraw}" method="post" onsubmit="return confirm('本当に退会しますか？');">
+			<label for="withdrawPassword">パスワード（確認）</label>
+			<input id="withdrawPassword" type="password" name="password" autocomplete="current-password" required />
+			<div class="form-actions">
+				<button type="submit" class="btn btn--danger">退会する</button>
+			</div>
+		</form>
+	</section>
+</main>
+</body>
+</html>

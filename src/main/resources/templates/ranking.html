@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('レビューランキング')}"></head>
+<body>
+<div th:replace="~{fragments :: mainNav}"></div>
+<main class="sheet container">
+	<h1 class="page-title">レビューランキング</h1>
+	<p class="lead">平均評価の高い順（同率はレビュー件数順）です。</p>
+	<div class="table-wrap" th:if="${!#lists.isEmpty(ranking)}">
+		<table class="data">
+			<thead>
+				<tr>
+					<th>順位</th>
+					<th>書籍</th>
+					<th>平均</th>
+					<th>件数</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="row, iterStat : ${ranking}">
+					<td th:text="${iterStat.count}">1</td>
+					<td><a th:href="@{/books/{id}(id=${row.bookId})}" th:text="${row.title}">title</a></td>
+					<td th:text="${#numbers.formatDecimal(row.averageRating, 1, 2)}">0</td>
+					<td th:text="${row.reviewCount}">0</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<p class="muted" th:if="${#lists.isEmpty(ranking)}">ランキングに表示できるレビューがありません。</p>
+</main>
+</body>
+</html>
