@@ -1,5 +1,7 @@
 package com.bookreview.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,7 +25,13 @@ public class BookService {
 	}
 
 	public List<Book> getRecommendedBooks() {
-		return bookRepository.findRecommendedBooksRandom();
+		List<Book> all = bookRepository.findAll();
+		if (all.isEmpty()) {
+			return List.of();
+		}
+		List<Book> copy = new ArrayList<>(all);
+		Collections.shuffle(copy);
+		return copy.size() <= 5 ? copy : copy.subList(0, 5);
 	}
 
 	public List<Book> getAllBooks() {

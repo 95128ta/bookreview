@@ -12,9 +12,6 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
 
 	List<Book> findTop5ByOrderByCreatedAtDesc();
 
-	@Query(value = "SELECT * FROM \"book\" ORDER BY RAND() LIMIT 5", nativeQuery = true)
-	List<Book> findRecommendedBooksRandom();
-
 	@Query("""
 			SELECT b FROM Book b WHERE
 			LOWER(b.title) LIKE LOWER(CONCAT('%', :kw, '%'))

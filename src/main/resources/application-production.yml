@@ -1,0 +1,8 @@
+# production: ローカルでは使わず、Render 等で SPRING_PROFILES_ACTIVE=production のときだけ読み込む
+spring:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true

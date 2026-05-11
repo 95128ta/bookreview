@@ -12,4 +12,6 @@ WORKDIR /app
 COPY --from=build /app/target/bookreview-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
 ENV PORT=8080
+# Render 用イメージでは既定で production（ローカルは mvn / IDE で local を指定）
+ENV SPRING_PROFILES_ACTIVE=production
 ENTRYPOINT ["java", "-jar", "app.jar"]

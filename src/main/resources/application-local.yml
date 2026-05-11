@@ -1,0 +1,7 @@
+# ローカル開発: 既定プロファイル（spring.profiles.default=local）
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/bookreview;AUTO_SERVER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
