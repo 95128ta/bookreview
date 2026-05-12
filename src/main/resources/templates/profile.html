@@ -22,6 +22,23 @@
 	</div>
 
 	<section class="card panel">
+		<h2 class="section-title">自分のレビュー</h2>
+		<p class="muted" th:if="${#lists.isEmpty(myReviews)}">まだレビューを投稿していません。</p>
+		<ul class="review-list" th:if="${!#lists.isEmpty(myReviews)}">
+			<li class="review-item" th:each="row : ${myReviews}">
+				<div class="review-meta">
+					<a th:href="@{/books/{id}(id=${row.review.bookId})}" th:text="${row.bookTitle}">書籍タイトル</a>
+					・ <span th:text="${#temporals.format(row.review.createdAt, 'yyyy-MM-dd HH:mm')}">日時</span>
+					・ <span th:text="${row.review.rating} + ' 点'">5点</span>
+					<span th:if="${row.review.spoiler != null and row.review.spoiler == 1}" class="spoiler">ネタバレあり</span>
+				</div>
+				<div th:if="${row.review.comment != null and !#strings.isEmpty(row.review.comment)}" th:text="${row.review.comment}">コメント</div>
+				<div class="muted" th:if="${row.review.comment == null or #strings.isEmpty(row.review.comment)}">（コメントなし）</div>
+			</li>
+		</ul>
+	</section>
+
+	<section class="card panel">
 		<h2 class="section-title">表示名の変更</h2>
 		<form class="form-stack" th:action="@{/profile/name}" method="post">
 			<label for="userName">新しい表示名（1～100文字）</label>

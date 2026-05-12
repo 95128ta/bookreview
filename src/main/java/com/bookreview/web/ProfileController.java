@@ -14,6 +14,7 @@ import com.bookreview.domain.AppUser;
 import com.bookreview.repository.AppUserRepository;
 import com.bookreview.security.LoginUserPrincipal;
 import com.bookreview.service.ProfileService;
+import com.bookreview.service.ReviewService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -22,10 +23,15 @@ public class ProfileController {
 
 	private final AppUserRepository appUserRepository;
 	private final ProfileService profileService;
+	private final ReviewService reviewService;
 
-	public ProfileController(AppUserRepository appUserRepository, ProfileService profileService) {
+	public ProfileController(
+			AppUserRepository appUserRepository,
+			ProfileService profileService,
+			ReviewService reviewService) {
 		this.appUserRepository = appUserRepository;
 		this.profileService = profileService;
+		this.reviewService = reviewService;
 	}
 
 	@GetMapping("/profile")
@@ -39,6 +45,7 @@ public class ProfileController {
 		model.addAttribute("displayName", entity.getUserName());
 		model.addAttribute("admin", entity.getIsAdmin() != null && entity.getIsAdmin() != 0);
 		model.addAttribute("stats", profileService.statsFor(user.getUserId()));
+		model.addAttribute("myReviews", reviewService.listMyReviews(user.getUserId()));
 		model.addAttribute("profileMessage", profileMessage);
 		model.addAttribute("profileError", profileError);
 		return "profile";

@@ -78,6 +78,14 @@
 				</div>
 				<div th:if="${row.review.comment != null and !#strings.isEmpty(row.review.comment)}" th:text="${row.review.comment}">comment</div>
 				<div class="muted" th:if="${row.review.comment == null or #strings.isEmpty(row.review.comment)}">（コメントなし）</div>
+				<div sec:authorize="hasRole('ADMIN')" class="inline-actions" style="margin-top: 0.5rem;">
+					<form
+							th:action="@{/admin/books/{bookId}/reviews/{reviewId}/delete(bookId=${book.bookId}, reviewId=${row.review.reviewId})}"
+							method="post"
+							onsubmit="return confirm('このレビューを削除しますか？');">
+						<button type="submit" class="btn btn--danger btn--sm">管理者として削除</button>
+					</form>
+				</div>
 			</li>
 		</ul>
 

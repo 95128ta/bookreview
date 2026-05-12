@@ -19,6 +19,8 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
 
 	long countByUserId(Integer userId);
 
+	List<Review> findByUserIdOrderByCreatedAtDesc(Integer userId);
+
 	@Query("""
 			SELECT NEW com.bookreview.web.dto.RankingEntry(b.bookId, b.title, AVG(r.rating), COUNT(r))
 			FROM Review r, Book b

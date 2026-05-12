@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bookreview.domain.AppUser;
+import com.bookreview.domain.Book;
 import com.bookreview.domain.Review;
 import com.bookreview.repository.AppUserRepository;
 import com.bookreview.repository.BookRepository;
@@ -53,6 +54,20 @@ public class ReviewService {
 		return new BookReviewSummary(rows, average, rows.size(), hasCurrentUserReview);
 	}
 
+	public List<MyReviewRow> listMyReviews(Integer userId) {
+		Objects.requireNonNull(userId, "userId");
+		List<Review> reviews = reviewRepository.findByUserIdOrderByCreatedAtDesc(userId);
+		if (reviews.isEmpty()) {
+			return List.of();
+		}
+		Set<Integer> bookIds = reviews.stream().map(Review::getBookId).collect(Collectors.toSet());
+		Map<Integer, String> titleByBookId = bookRepository.findAllById(bookIds).stream()
+				.collect(Collectors.toMap(Book::getBookId, Book::getTitle));
+		return reviews.stream()
+				.map(r -> new MyReviewRow(r, titleByBookId.getOrDefault(r.getBookId(), "（書籍が見つかりません）")))
+				.toList();
+	}
+
 	@Transactional
 	public void saveOrUpdateReview(Integer bookId, double rating, String comment, boolean spoiler, Integer userId) {
 		Objects.requireNonNull(bookId, "bookId");
@@ -88,6 +103,9 @@ public class ReviewService {
 	}
 
 	public record ReviewWithUserName(Review review, String userName) {
+	}
+
+	public record MyReviewRow(Review review, String bookTitle) {
 	}
 
 	public record BookReviewSummary(
