@@ -1,5 +1,7 @@
 package com.bookreview.web;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -7,7 +9,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import com.bookreview.domain.AppUser;
 import com.bookreview.repository.AppUserRepository;
+import com.bookreview.security.LoginUserPrincipal;
 import com.bookreview.service.AccountService;
 
 import jakarta.validation.Valid;
@@ -39,7 +43,14 @@ public class RegistrationController {
 			return "register";
 		}
 		accountService.register(form.getLoginId(), form.getPassword(), form.getUserName());
-		return "redirect:/login?registered";
+
+		AppUser user = appUserRepository.findByLoginId(form.getLoginId().trim()).orElseThrow();
+		LoginUserPrincipal principal = LoginUserPrincipal.fromEntity(user);
+		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+				principal, null, principal.getAuthorities());
+		SecurityContextHolder.getContext().setAuthentication(auth);
+
+		return "redirect:/";
 	}
 }
 
