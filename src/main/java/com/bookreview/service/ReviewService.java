@@ -123,5 +123,29 @@ public class ReviewService {
 		}
 		reviewRepository.delete(review);
 	}
+
+	@Transactional
+	public void updateMyReview(Integer reviewId, Integer userId, double rating, String comment, boolean spoiler) {
+		Objects.requireNonNull(reviewId, "reviewId");
+		Objects.requireNonNull(userId, "userId");
+		Review review = reviewRepository.findById(reviewId)
+				.orElseThrow(() -> new IllegalArgumentException("レビューが見つかりません。"));
+		if (!review.getUserId().equals(userId)) {
+			throw new IllegalArgumentException("このレビューを編集する権限がありません。");
+		}
+		saveOrUpdateReview(review.getBookId(), rating, comment, spoiler, userId);
+	}
+
+	@Transactional
+	public void deleteMyReview(Integer reviewId, Integer userId) {
+		Objects.requireNonNull(reviewId, "reviewId");
+		Objects.requireNonNull(userId, "userId");
+		Review review = reviewRepository.findById(reviewId)
+				.orElseThrow(() -> new IllegalArgumentException("レビューが見つかりません。"));
+		if (!review.getUserId().equals(userId)) {
+			throw new IllegalArgumentException("このレビューを削除する権限がありません。");
+		}
+		reviewRepository.delete(review);
+	}
 }
 

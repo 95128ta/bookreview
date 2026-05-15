@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -49,6 +50,41 @@ public class ProfileController {
 		model.addAttribute("profileMessage", profileMessage);
 		model.addAttribute("profileError", profileError);
 		return "profile";
+	}
+
+	@PostMapping("/profile/reviews/{reviewId}/update")
+	public String updateMyReview(
+			@PathVariable Integer reviewId,
+			@RequestParam("rating") double rating,
+			@RequestParam(value = "comment", required = false) String comment,
+			@RequestParam(value = "spoiler", defaultValue = "false") boolean spoiler,
+			@AuthenticationPrincipal LoginUserPrincipal user,
+			RedirectAttributes redirectAttributes) {
+		try {
+			reviewService.updateMyReview(reviewId, user.getUserId(), rating, comment, spoiler);
+			redirectAttributes.addFlashAttribute("myReviewMessage", "レビューを更新しました。");
+		} catch (IllegalArgumentException ex) {
+			redirectAttributes.addFlashAttribute("myReviewError", ex.getMessage());
+		} catch (Exception ex) {
+			redirectAttributes.addFlashAttribute("myReviewError", "レビューを更新できませんでした。");
+		}
+		return "redirect:/profile";
+	}
+
+	@PostMapping("/profile/reviews/{reviewId}/delete")
+	public String deleteMyReview(
+			@PathVariable Integer reviewId,
+			@AuthenticationPrincipal LoginUserPrincipal user,
+			RedirectAttributes redirectAttributes) {
+		try {
+			reviewService.deleteMyReview(reviewId, user.getUserId());
+			redirectAttributes.addFlashAttribute("myReviewMessage", "レビューを削除しました。");
+		} catch (IllegalArgumentException ex) {
+			redirectAttributes.addFlashAttribute("myReviewError", ex.getMessage());
+		} catch (Exception ex) {
+			redirectAttributes.addFlashAttribute("myReviewError", "レビューを削除できませんでした。");
+		}
+		return "redirect:/profile";
 	}
 
 	@PostMapping("/profile/name")

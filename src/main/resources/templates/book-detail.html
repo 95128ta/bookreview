@@ -69,8 +69,12 @@
 		</p>
 
 		<ul class="review-list" th:if="${reviewSummary.totalCount > 0}">
-			<li class="review-item" th:each="row : ${reviewSummary.rows}">
+			<li class="review-item"
+					th:each="row : ${reviewSummary.rows}"
+					th:classappend="${currentUserId != null and row.review.userId == currentUserId} ? ' review-item--mine' : ' review-item--readonly'">
 				<div class="review-meta">
+					<span class="review-badge review-badge--mine"
+							th:if="${currentUserId != null and row.review.userId == currentUserId}">自分のレビュー</span>
 					<span th:text="${row.userName}">user</span>
 					・ <span th:text="${#temporals.format(row.review.createdAt, 'yyyy-MM-dd HH:mm')}">date</span>
 					・ <span th:text="${row.review.rating} + ' 点'">5点</span>
@@ -78,7 +82,9 @@
 				</div>
 				<div th:if="${row.review.comment != null and !#strings.isEmpty(row.review.comment)}" th:text="${row.review.comment}">comment</div>
 				<div class="muted" th:if="${row.review.comment == null or #strings.isEmpty(row.review.comment)}">（コメントなし）</div>
-				<div sec:authorize="hasRole('ADMIN')" class="inline-actions" style="margin-top: 0.5rem;">
+				<div sec:authorize="hasRole('ADMIN')"
+						th:if="${currentUserId == null or row.review.userId != currentUserId}"
+						class="inline-actions review-item__admin-actions">
 					<form
 							th:action="@{/admin/books/{bookId}/reviews/{reviewId}/delete(bookId=${book.bookId}, reviewId=${row.review.reviewId})}"
 							method="post"

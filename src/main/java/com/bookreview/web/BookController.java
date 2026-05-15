@@ -85,6 +85,7 @@ public class BookController {
 				.map(book -> {
 					model.addAttribute("book", book);
 					Integer userId = user != null ? user.getUserId() : null;
+					model.addAttribute("currentUserId", userId);
 					model.addAttribute("reviewSummary", reviewService.summaryForBook(bookId, userId));
 					if (userId != null) {
 						model.addAttribute("bookmarked", bookmarkService.isBookmarked(userId, bookId));
