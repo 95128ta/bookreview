@@ -29,6 +29,27 @@ public class AdminUserService {
 		user.setIsAdmin(1);
 		appUserRepository.save(user);
 	}
+
+	@Transactional
+	public void demoteFromAdmin(String loginId, Integer actingAdminUserId) {
+		String trimmed = loginId == null ? "" : loginId.trim();
+		if (trimmed.isEmpty()) {
+			throw new IllegalArgumentException("ログイン ID を入力してください。");
+		}
+		AppUser user = appUserRepository.findByLoginId(trimmed)
+				.orElseThrow(() -> new IllegalArgumentException("対象ユーザーが見つかりません。"));
+		if (user.getIsAdmin() == null || user.getIsAdmin() == 0) {
+			throw new IllegalArgumentException("このユーザーは管理者ではありません。");
+		}
+		if (actingAdminUserId != null && actingAdminUserId.equals(user.getUserId())) {
+			throw new IllegalArgumentException("自分自身を一般ユーザーに降格することはできません。");
+		}
+		if (appUserRepository.countByIsAdmin(1) <= 1) {
+			throw new IllegalArgumentException("最後の管理者は降格できません。");
+		}
+		user.setIsAdmin(0);
+		appUserRepository.save(user);
+	}
 }
 
 

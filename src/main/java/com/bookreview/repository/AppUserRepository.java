@@ -11,5 +11,7 @@ public interface AppUserRepository extends JpaRepository<AppUser, Integer> {
 	Optional<AppUser> findByLoginId(String loginId);
 
 	boolean existsByLoginId(String loginId);
+
+	long countByIsAdmin(Integer isAdmin);
 }
 

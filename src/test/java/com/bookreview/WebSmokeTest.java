@@ -15,6 +15,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+
+import com.bookreview.security.LoginUserPrincipal;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -71,6 +74,26 @@ class WebSmokeTest {
 	void promoteRouteReachableForAdmin() throws Exception {
 		mockMvc.perform(post("/admin/users/promote")
 				.with(csrf())
+				.param("loginId", "no-such-user@example.com"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/admin/books"));
+	}
+
+	@Test
+	@WithMockUser(roles = "USER")
+	void demoteRouteForbiddenForNormalUser() throws Exception {
+		mockMvc.perform(post("/admin/users/demote")
+				.with(csrf())
+				.param("loginId", "admin@bookreview.local"))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	void demoteRouteReachableForAdmin() throws Exception {
+		LoginUserPrincipal admin = new LoginUserPrincipal(1, "admin@bookreview.local", "hash", "管理者", true);
+		mockMvc.perform(post("/admin/users/demote")
+				.with(csrf())
+				.with(user(admin))
 				.param("loginId", "no-such-user@example.com"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("/admin/books"));

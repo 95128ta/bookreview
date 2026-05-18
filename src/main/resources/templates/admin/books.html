@@ -39,10 +39,23 @@
 	<section class="card admin-section">
 		<h2 class="section-title">ユーザーを管理者に昇格</h2>
 		<form class="form-stack" th:action="@{/admin/users/promote}" method="post">
-			<label for="loginId">ログイン ID</label>
-			<input id="loginId" type="text" name="loginId" required />
+			<label for="promoteLoginId">ログイン ID</label>
+			<input id="promoteLoginId" type="text" name="loginId" required autocomplete="username" />
 			<div class="form-actions">
 				<button type="submit" class="btn btn--primary">昇格</button>
+			</div>
+		</form>
+	</section>
+
+	<section class="card admin-section">
+		<h2 class="section-title">管理者を一般ユーザーに降格</h2>
+		<p class="muted">管理者権限を外します。自分自身と、システムに残る最後の1人の管理者は降格できません。</p>
+		<form class="form-stack" th:action="@{/admin/users/demote}" method="post"
+				onsubmit="return confirm('このユーザーの管理者権限を外しますか？');">
+			<label for="demoteLoginId">ログイン ID</label>
+			<input id="demoteLoginId" type="text" name="loginId" required autocomplete="username" />
+			<div class="form-actions">
+				<button type="submit" class="btn btn--danger">降格</button>
 			</div>
 		</form>
 	</section>
