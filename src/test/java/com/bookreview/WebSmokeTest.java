@@ -51,52 +51,46 @@ class WebSmokeTest {
 	}
 
 	@Test
-	@WithMockUser(roles = "ADMIN")
-	void adminRouteOkForAdmin() throws Exception {
-		mockMvc.perform(post("/admin/users/promote")
-				.with(csrf())
-				.param("loginId", "no-such-user@example.com"))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("/admin/books"));
+	void adminUsersListOkForAdmin() throws Exception {
+		LoginUserPrincipal admin = new LoginUserPrincipal(1, "admin@bookreview.local", "hash", "管理者", true);
+		mockMvc.perform(get("/admin/users").with(user(admin))).andExpect(status().isOk());
 	}
 
 	@Test
 	@WithMockUser(roles = "USER")
-	void promoteRouteForbiddenForNormalUser() throws Exception {
-		mockMvc.perform(post("/admin/users/promote")
-				.with(csrf())
-				.param("loginId", "someone@example.com"))
-				.andExpect(status().isForbidden());
+	void adminUsersListForbiddenForNormalUser() throws Exception {
+		mockMvc.perform(get("/admin/users")).andExpect(status().isForbidden());
 	}
 
 	@Test
 	@WithMockUser(roles = "ADMIN")
 	void promoteRouteReachableForAdmin() throws Exception {
-		mockMvc.perform(post("/admin/users/promote")
-				.with(csrf())
-				.param("loginId", "no-such-user@example.com"))
+		mockMvc.perform(post("/admin/users/99999/promote").with(csrf()))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("/admin/books"));
+				.andExpect(redirectedUrl("/admin/users"));
+	}
+
+	@Test
+	@WithMockUser(roles = "USER")
+	void promoteRouteForbiddenForNormalUser() throws Exception {
+		mockMvc.perform(post("/admin/users/1/promote").with(csrf()))
+				.andExpect(status().isForbidden());
 	}
 
 	@Test
 	@WithMockUser(roles = "USER")
 	void demoteRouteForbiddenForNormalUser() throws Exception {
-		mockMvc.perform(post("/admin/users/demote")
-				.with(csrf())
-				.param("loginId", "admin@bookreview.local"))
+		mockMvc.perform(post("/admin/users/1/demote").with(csrf()))
 				.andExpect(status().isForbidden());
 	}
 
 	@Test
 	void demoteRouteReachableForAdmin() throws Exception {
 		LoginUserPrincipal admin = new LoginUserPrincipal(1, "admin@bookreview.local", "hash", "管理者", true);
-		mockMvc.perform(post("/admin/users/demote")
+		mockMvc.perform(post("/admin/users/99999/demote")
 				.with(csrf())
-				.with(user(admin))
-				.param("loginId", "no-such-user@example.com"))
+				.with(user(admin)))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("/admin/books"));
+				.andExpect(redirectedUrl("/admin/users"));
 	}
 }
-

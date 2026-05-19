@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('管理 · ユーザー')}"></head>
+<body>
+<div th:replace="~{fragments :: mainNav}"></div>
+<main class="sheet container">
+	<nav th:replace="~{fragments :: adminNav('users')}"></nav>
+	<h1 class="page-title">管理: ユーザー一覧</h1>
+	<p class="muted admin-lead">ロールの変更は各行のボタンから行います。</p>
+	<p class="msg-ok" th:if="${adminMessage != null and !#strings.isEmpty(adminMessage)}" th:text="${adminMessage}"></p>
+	<p class="msg-err" th:if="${adminError != null and !#strings.isEmpty(adminError)}" th:text="${adminError}"></p>
+
+	<div class="table-wrap" th:if="${!#lists.isEmpty(users)}">
+		<table class="data">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>表示名</th>
+					<th>ログイン ID</th>
+					<th>ロール</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="row : ${users}" th:classappend="${row.self} ? ' data-row--highlight' : ''">
+					<td th:text="${row.user.userId}">1</td>
+					<td>
+						<span th:text="${row.user.userName}">name</span>
+						<span th:if="${row.self}" class="review-badge review-badge--mine">あなた</span>
+					</td>
+					<td th:text="${row.user.loginId}">login</td>
+					<td>
+						<span th:if="${row.admin}" class="role-badge role-badge--admin">管理者</span>
+						<span th:unless="${row.admin}" class="role-badge role-badge--user">一般</span>
+					</td>
+					<td class="admin-user-actions">
+						<form th:if="${row.canPromote}"
+								class="form-inline"
+								th:action="@{/admin/users/{id}/promote(id=${row.user.userId})}"
+								method="post"
+								onsubmit="return confirm('このユーザーを管理者に昇格しますか？');">
+							<button type="submit" class="btn btn--primary btn--sm">昇格</button>
+						</form>
+						<form th:if="${row.canDemote}"
+								class="form-inline"
+								th:action="@{/admin/users/{id}/demote(id=${row.user.userId})}"
+								method="post"
+								onsubmit="return confirm('このユーザーの管理者権限を外しますか？');">
+							<button type="submit" class="btn btn--danger btn--sm">降格</button>
+						</form>
+						<span class="muted admin-user-actions__hint" th:if="${row.demoteHint != null}" th:text="${row.demoteHint}">—</span>
+						<span class="muted" th:if="${!row.canPromote and !row.canDemote and row.demoteHint == null}">—</span>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<p class="muted" th:if="${#lists.isEmpty(users)}">登録ユーザーがいません。</p>
+</main>
+</body>
+</html>

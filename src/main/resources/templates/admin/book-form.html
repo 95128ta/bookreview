@@ -4,6 +4,7 @@
 <body>
 <div th:replace="~{fragments :: mainNav}"></div>
 <main class="sheet container container--form">
+	<nav th:replace="~{fragments :: adminNav('books')}"></nav>
 	<h1 class="page-title" th:text="${form.bookId != null} ? '書籍を編集' : '書籍を新規登録'">書籍</h1>
 	<div class="card">
 		<form class="form-stack" th:action="${form.bookId != null} ? @{/admin/books/{bookId}/edit(bookId=${form.bookId})} : @{/admin/books/new}" th:object="${form}" method="post">

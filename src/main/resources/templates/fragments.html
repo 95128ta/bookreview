@@ -20,7 +20,8 @@
 					<li sec:authorize="isAuthenticated()"><a th:href="@{/reading}">読書中</a></li>
 					<li sec:authorize="isAuthenticated()"><a th:href="@{/bookmarks}">ブックマーク</a></li>
 					<li sec:authorize="isAuthenticated()"><a th:href="@{/profile}">マイページ</a></li>
-					<li sec:authorize="hasRole('ADMIN')"><a th:href="@{/admin/books}">管理</a></li>
+					<li sec:authorize="hasRole('ADMIN')"><a th:href="@{/admin/books}">書籍管理</a></li>
+					<li sec:authorize="hasRole('ADMIN')"><a th:href="@{/admin/users}">ユーザー管理</a></li>
 				</ul>
 			</nav>
 			<div class="site-header__user">
@@ -38,5 +39,9 @@
 		</div>
 	</div>
 </header>
+<nav th:fragment="adminNav(active)" class="admin-subnav" aria-label="管理メニュー">
+	<a class="admin-subnav__link" th:classappend="${active == 'books'} ? ' admin-subnav__link--active' : ''" th:href="@{/admin/books}">書籍</a>
+	<a class="admin-subnav__link" th:classappend="${active == 'users'} ? ' admin-subnav__link--active' : ''" th:href="@{/admin/users}">ユーザー</a>
+</nav>
 </body>
 </html>
