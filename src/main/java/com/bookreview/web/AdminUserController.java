@@ -40,11 +40,11 @@ public class AdminUserController {
 	@PostMapping("/admin/users/{userId}/promote")
 	public String promoteUser(
 			@PathVariable Integer userId,
-			@RequestParam("adminPassword") String adminPassword,
+			@RequestParam("userPassword") String userPassword,
 			@AuthenticationPrincipal LoginUserPrincipal user,
 			RedirectAttributes redirectAttributes) {
 		try {
-			adminUserService.promoteToAdminByUserId(userId, user.getUserId(), adminPassword);
+			adminUserService.promoteToAdminByUserId(userId, userPassword);
 			redirectAttributes.addFlashAttribute("adminMessage", "管理者に昇格しました。");
 		} catch (IllegalArgumentException ex) {
 			redirectAttributes.addFlashAttribute("adminError", ex.getMessage());
@@ -55,13 +55,13 @@ public class AdminUserController {
 	@PostMapping("/admin/users/{userId}/demote")
 	public String demoteUser(
 			@PathVariable Integer userId,
-			@RequestParam("adminPassword") String adminPassword,
+			@RequestParam("userPassword") String userPassword,
 			@AuthenticationPrincipal LoginUserPrincipal user,
 			HttpSession session,
 			RedirectAttributes redirectAttributes) {
 		try {
 			boolean selfDemoted = adminUserService.demoteFromAdminByUserId(
-					userId, user.getUserId(), adminPassword);
+					userId, user.getUserId(), userPassword);
 			if (selfDemoted) {
 				session.invalidate();
 				SecurityContextHolder.clearContext();

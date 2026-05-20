@@ -6,7 +6,7 @@
 <main class="sheet container">
 	<nav th:replace="~{fragments :: adminNav('users')}"></nav>
 	<h1 class="page-title">管理: ユーザー一覧</h1>
-	<p class="muted admin-lead">昇格・降格の実行には、あなた（管理者）のパスワード入力が必要です。</p>
+	<p class="muted admin-lead">昇格・降格の実行には、操作対象ユーザーのパスワード入力が必要です。</p>
 	<p class="msg-ok" th:if="${adminMessage != null and !#strings.isEmpty(adminMessage)}" th:text="${adminMessage}"></p>
 	<p class="msg-err" th:if="${adminError != null and !#strings.isEmpty(adminError)}" th:text="${adminError}"></p>
 
@@ -39,8 +39,8 @@
 								th:action="@{/admin/users/{id}/promote(id=${row.user.userId})}"
 								method="post"
 								onsubmit="return confirm('このユーザーを管理者に昇格しますか？');">
-							<input type="password" name="adminPassword" class="admin-role-form__password"
-									placeholder="あなたのパスワード" required autocomplete="current-password" />
+							<input type="password" name="userPassword" class="admin-role-form__password"
+									placeholder="対象ユーザーのパスワード" required autocomplete="off" />
 							<button type="submit" class="btn btn--primary btn--sm">昇格</button>
 						</form>
 						<form th:if="${row.canDemote}"
@@ -48,8 +48,9 @@
 								th:action="@{/admin/users/{id}/demote(id=${row.user.userId})}"
 								method="post"
 								th:attr="onsubmit=${row.self} ? 'return confirm(\'自分を一般ユーザーに降格します。ログアウトされます。よろしいですか？\');' : 'return confirm(\'このユーザーの管理者権限を外しますか？\');'">
-							<input type="password" name="adminPassword" class="admin-role-form__password"
-									placeholder="あなたのパスワード" required autocomplete="current-password" />
+							<input type="password" name="userPassword" class="admin-role-form__password"
+									th:placeholder="${row.self} ? 'あなたのパスワード' : '対象ユーザーのパスワード'"
+									required autocomplete="off" />
 							<button type="submit" class="btn btn--danger btn--sm">降格</button>
 						</form>
 						<span class="muted admin-user-actions__hint" th:if="${row.demoteHint != null}" th:text="${row.demoteHint}">—</span>

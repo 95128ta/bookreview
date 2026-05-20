@@ -82,7 +82,7 @@ class WebSmokeTest {
 		mockMvc.perform(post("/admin/users/99999/promote")
 				.with(csrf())
 				.with(user(SEEDED_ADMIN))
-				.param("adminPassword", "demo"))
+				.param("userPassword", "demo"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("/admin/users"));
 	}
@@ -92,7 +92,7 @@ class WebSmokeTest {
 	void promoteRouteForbiddenForNormalUser() throws Exception {
 		mockMvc.perform(post("/admin/users/1/promote")
 				.with(csrf())
-				.param("adminPassword", "demo"))
+				.param("userPassword", "demo"))
 				.andExpect(status().isForbidden());
 	}
 
@@ -101,7 +101,7 @@ class WebSmokeTest {
 	void demoteRouteForbiddenForNormalUser() throws Exception {
 		mockMvc.perform(post("/admin/users/2/demote")
 				.with(csrf())
-				.param("adminPassword", "demo"))
+				.param("userPassword", "demo"))
 				.andExpect(status().isForbidden());
 	}
 
@@ -110,7 +110,7 @@ class WebSmokeTest {
 		mockMvc.perform(post("/admin/users/99999/demote")
 				.with(csrf())
 				.with(user(SEEDED_ADMIN))
-				.param("adminPassword", "demo"))
+				.param("userPassword", "demo"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("/admin/users"));
 	}

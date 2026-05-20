@@ -46,25 +46,19 @@ public class AdminUserService {
 		return new AdminUserRow(user, admin, self, canPromote, canDemote, demoteHint);
 	}
 
-	public void verifyActingAdminPassword(Integer actingAdminUserId, String rawPassword) {
-		if (actingAdminUserId == null) {
-			throw new IllegalArgumentException("管理者としてログインしてください。");
-		}
+	public void verifyTargetUserPassword(Integer targetUserId, String rawPassword) {
 		if (rawPassword == null || rawPassword.isBlank()) {
-			throw new IllegalArgumentException("管理者パスワードを入力してください。");
+			throw new IllegalArgumentException("対象ユーザーのパスワードを入力してください。");
 		}
-		AppUser acting = appUserRepository.findById(actingAdminUserId).orElseThrow();
-		if (acting.getIsAdmin() == null || acting.getIsAdmin() == 0) {
-			throw new IllegalArgumentException("管理者のみが実行できます。");
-		}
-		if (!passwordEncoder.matches(rawPassword, acting.getPassword())) {
-			throw new IllegalArgumentException("管理者パスワードが一致しません。");
+		AppUser target = findUserOrThrow(targetUserId);
+		if (!passwordEncoder.matches(rawPassword, target.getPassword())) {
+			throw new IllegalArgumentException("対象ユーザーのパスワードが一致しません。");
 		}
 	}
 
 	@Transactional
-	public void promoteToAdminByUserId(Integer userId, Integer actingAdminUserId, String actingAdminPassword) {
-		verifyActingAdminPassword(actingAdminUserId, actingAdminPassword);
+	public void promoteToAdminByUserId(Integer userId, String targetUserPassword) {
+		verifyTargetUserPassword(userId, targetUserPassword);
 		AppUser user = findUserOrThrow(userId);
 		if (user.getIsAdmin() != null && user.getIsAdmin() != 0) {
 			throw new IllegalArgumentException("既に管理者です。");
@@ -77,8 +71,8 @@ public class AdminUserService {
 	 * @return 操作対象が自分自身だった場合 true（呼び出し側でログアウト処理）
 	 */
 	@Transactional
-	public boolean demoteFromAdminByUserId(Integer userId, Integer actingAdminUserId, String actingAdminPassword) {
-		verifyActingAdminPassword(actingAdminUserId, actingAdminPassword);
+	public boolean demoteFromAdminByUserId(Integer userId, Integer actingAdminUserId, String targetUserPassword) {
+		verifyTargetUserPassword(userId, targetUserPassword);
 		AppUser user = findUserOrThrow(userId);
 		if (user.getIsAdmin() == null || user.getIsAdmin() == 0) {
 			throw new IllegalArgumentException("このユーザーは管理者ではありません。");
