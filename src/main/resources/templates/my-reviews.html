@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('自分のレビュー')}"></head>
+<body>
+<div th:replace="~{fragments :: mainNav}"></div>
+<main class="sheet container">
+	<nav class="breadcrumbs" aria-label="パンくず">
+		<a th:href="@{/profile}">マイページ</a>
+		<span aria-hidden="true">/</span>
+		<span>自分のレビュー</span>
+	</nav>
+	<h1 class="page-title">自分のレビュー</h1>
+	<p class="lead">投稿したレビューを一覧で確認・編集できます。</p>
+	<p class="msg-ok" th:if="${myReviewMessage != null and !#strings.isEmpty(myReviewMessage)}" th:text="${myReviewMessage}"></p>
+	<p class="msg-err" th:if="${myReviewError != null and !#strings.isEmpty(myReviewError)}" th:text="${myReviewError}"></p>
+
+	<p class="muted my-reviews-lead" th:if="${#lists.isEmpty(myReviews)}">まだレビューを投稿していません。<a th:href="@{/books}">書籍一覧</a>から投稿できます。</p>
+	<div class="my-reviews" th:if="${!#lists.isEmpty(myReviews)}">
+		<article class="my-review-card" th:each="row : ${myReviews}">
+			<div class="my-review-card__head">
+				<a class="my-review-card__title" th:href="@{/books/{id}(id=${row.review.bookId})}" th:text="${row.bookTitle}">書籍タイトル</a>
+				<a class="btn btn--secondary btn--sm" th:href="@{/books/{id}(id=${row.review.bookId})}">書籍ページへ</a>
+			</div>
+			<div class="my-review-card__meta">
+				<time th:datetime="${row.review.createdAt}" th:text="${#temporals.format(row.review.createdAt, 'yyyy-MM-dd HH:mm')}">日時</time>
+				<span class="my-review-card__sep" aria-hidden="true">·</span>
+				<span th:text="${#numbers.formatDecimal(row.review.rating, 1, 1)} + ' 点'">5.0点</span>
+				<span th:if="${row.review.spoiler != null and row.review.spoiler == 1}" class="spoiler">ネタバレあり</span>
+			</div>
+			<div class="my-review-card__body" th:if="${row.review.comment != null and !#strings.isEmpty(row.review.comment)}" th:text="${row.review.comment}">コメント</div>
+			<p class="muted my-review-card__empty" th:if="${row.review.comment == null or #strings.isEmpty(row.review.comment)}">（コメントなし）</p>
+			<div class="my-review-card__actions">
+				<details class="my-review-edit">
+					<summary class="my-review-edit__summary">編集</summary>
+					<form class="form-stack my-review-edit__form" th:action="@{/my-reviews/{rid}/update(rid=${row.review.reviewId})}" method="post">
+						<label th:for="|rating-${row.review.reviewId}|">評価（0.5〜5）</label>
+						<select th:id="|rating-${row.review.reviewId}|" name="rating" required>
+							<option th:each="step : ${#numbers.sequence(1, 10)}"
+									th:value="${step * 0.5}"
+									th:selected="${row.review.rating != null and #numbers.formatDecimal(row.review.rating, 1, 1) == #numbers.formatDecimal(step * 0.5, 1, 1)}"
+									th:text="${#numbers.formatDecimal(step * 0.5, 1, 1)} + ' 点'">1点</option>
+						</select>
+						<label th:for="|comment-${row.review.reviewId}|">コメント（任意、4000文字まで）</label>
+						<textarea th:id="|comment-${row.review.reviewId}|" name="comment" maxlength="4000" rows="4" placeholder="感想を書いてください"
+								th:text="${row.review.comment != null ? row.review.comment : ''}"></textarea>
+						<label class="my-review-edit__check">
+							<input type="checkbox" name="spoiler" value="true" th:checked="${row.review.spoiler != null and row.review.spoiler == 1}" />
+							ネタバレを含む
+						</label>
+						<div class="form-actions">
+							<button type="submit" class="btn btn--primary">更新</button>
+						</div>
+					</form>
+				</details>
+				<form class="form-inline" th:action="@{/my-reviews/{rid}/delete(rid=${row.review.reviewId})}" method="post"
+						onsubmit="return confirm('このレビューを削除しますか？');">
+					<button type="submit" class="btn btn--danger btn--sm">削除</button>
+				</form>
+			</div>
+		</article>
+	</div>
+</main>
+</body>
+</html>

@@ -1,16 +1,20 @@
 package com.bookreview.web;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.bookreview.security.LoginUserPrincipal;
 import com.bookreview.service.AdminUserService;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class AdminUserController {
@@ -36,9 +40,11 @@ public class AdminUserController {
 	@PostMapping("/admin/users/{userId}/promote")
 	public String promoteUser(
 			@PathVariable Integer userId,
+			@RequestParam("adminPassword") String adminPassword,
+			@AuthenticationPrincipal LoginUserPrincipal user,
 			RedirectAttributes redirectAttributes) {
 		try {
-			adminUserService.promoteToAdminByUserId(userId);
+			adminUserService.promoteToAdminByUserId(userId, user.getUserId(), adminPassword);
 			redirectAttributes.addFlashAttribute("adminMessage", "管理者に昇格しました。");
 		} catch (IllegalArgumentException ex) {
 			redirectAttributes.addFlashAttribute("adminError", ex.getMessage());
@@ -49,11 +55,20 @@ public class AdminUserController {
 	@PostMapping("/admin/users/{userId}/demote")
 	public String demoteUser(
 			@PathVariable Integer userId,
+			@RequestParam("adminPassword") String adminPassword,
 			@AuthenticationPrincipal LoginUserPrincipal user,
+			HttpSession session,
 			RedirectAttributes redirectAttributes) {
 		try {
-			Integer actingAdminUserId = user != null ? user.getUserId() : null;
-			adminUserService.demoteFromAdminByUserId(userId, actingAdminUserId);
+			boolean selfDemoted = adminUserService.demoteFromAdminByUserId(
+					userId, user.getUserId(), adminPassword);
+			if (selfDemoted) {
+				session.invalidate();
+				SecurityContextHolder.clearContext();
+				redirectAttributes.addFlashAttribute(
+						"withdrawnMessage", "一般ユーザーに変更したためログアウトしました。再度ログインしてください。");
+				return "redirect:/";
+			}
 			redirectAttributes.addFlashAttribute("adminMessage", "一般ユーザーに降格しました。");
 		} catch (IllegalArgumentException ex) {
 			redirectAttributes.addFlashAttribute("adminError", ex.getMessage());

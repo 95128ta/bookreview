@@ -24,6 +24,9 @@ import com.bookreview.security.LoginUserPrincipal;
 @AutoConfigureMockMvc
 class WebSmokeTest {
 
+	private static final LoginUserPrincipal SEEDED_ADMIN = new LoginUserPrincipal(
+			2, "admin@bookreview.local", "hash", "管理者", true);
+
 	@Autowired
 	private MockMvc mockMvc;
 
@@ -45,6 +48,19 @@ class WebSmokeTest {
 	}
 
 	@Test
+	void myReviewsRequiresLogin() throws Exception {
+		mockMvc.perform(get("/my-reviews"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrlPattern("**/login"));
+	}
+
+	@Test
+	void myReviewsOkForAuthenticatedUser() throws Exception {
+		LoginUserPrincipal demoUser = new LoginUserPrincipal(1, "demo-user@example.com", "hash", "デモユーザー", false);
+		mockMvc.perform(get("/my-reviews").with(user(demoUser))).andExpect(status().isOk());
+	}
+
+	@Test
 	@WithMockUser(roles = "USER")
 	void adminRouteForbiddenForNormalUser() throws Exception {
 		mockMvc.perform(get("/admin/books")).andExpect(status().isForbidden());
@@ -52,8 +68,7 @@ class WebSmokeTest {
 
 	@Test
 	void adminUsersListOkForAdmin() throws Exception {
-		LoginUserPrincipal admin = new LoginUserPrincipal(1, "admin@bookreview.local", "hash", "管理者", true);
-		mockMvc.perform(get("/admin/users").with(user(admin))).andExpect(status().isOk());
+		mockMvc.perform(get("/admin/users").with(user(SEEDED_ADMIN))).andExpect(status().isOk());
 	}
 
 	@Test
@@ -63,9 +78,11 @@ class WebSmokeTest {
 	}
 
 	@Test
-	@WithMockUser(roles = "ADMIN")
 	void promoteRouteReachableForAdmin() throws Exception {
-		mockMvc.perform(post("/admin/users/99999/promote").with(csrf()))
+		mockMvc.perform(post("/admin/users/99999/promote")
+				.with(csrf())
+				.with(user(SEEDED_ADMIN))
+				.param("adminPassword", "demo"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("/admin/users"));
 	}
@@ -73,23 +90,27 @@ class WebSmokeTest {
 	@Test
 	@WithMockUser(roles = "USER")
 	void promoteRouteForbiddenForNormalUser() throws Exception {
-		mockMvc.perform(post("/admin/users/1/promote").with(csrf()))
+		mockMvc.perform(post("/admin/users/1/promote")
+				.with(csrf())
+				.param("adminPassword", "demo"))
 				.andExpect(status().isForbidden());
 	}
 
 	@Test
 	@WithMockUser(roles = "USER")
 	void demoteRouteForbiddenForNormalUser() throws Exception {
-		mockMvc.perform(post("/admin/users/1/demote").with(csrf()))
+		mockMvc.perform(post("/admin/users/2/demote")
+				.with(csrf())
+				.param("adminPassword", "demo"))
 				.andExpect(status().isForbidden());
 	}
 
 	@Test
 	void demoteRouteReachableForAdmin() throws Exception {
-		LoginUserPrincipal admin = new LoginUserPrincipal(1, "admin@bookreview.local", "hash", "管理者", true);
 		mockMvc.perform(post("/admin/users/99999/demote")
 				.with(csrf())
-				.with(user(admin)))
+				.with(user(SEEDED_ADMIN))
+				.param("adminPassword", "demo"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("/admin/users"));
 	}

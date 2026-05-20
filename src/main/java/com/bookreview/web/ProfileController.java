@@ -6,7 +6,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -15,7 +14,6 @@ import com.bookreview.domain.AppUser;
 import com.bookreview.repository.AppUserRepository;
 import com.bookreview.security.LoginUserPrincipal;
 import com.bookreview.service.ProfileService;
-import com.bookreview.service.ReviewService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -24,15 +22,10 @@ public class ProfileController {
 
 	private final AppUserRepository appUserRepository;
 	private final ProfileService profileService;
-	private final ReviewService reviewService;
 
-	public ProfileController(
-			AppUserRepository appUserRepository,
-			ProfileService profileService,
-			ReviewService reviewService) {
+	public ProfileController(AppUserRepository appUserRepository, ProfileService profileService) {
 		this.appUserRepository = appUserRepository;
 		this.profileService = profileService;
-		this.reviewService = reviewService;
 	}
 
 	@GetMapping("/profile")
@@ -46,45 +39,9 @@ public class ProfileController {
 		model.addAttribute("displayName", entity.getUserName());
 		model.addAttribute("admin", entity.getIsAdmin() != null && entity.getIsAdmin() != 0);
 		model.addAttribute("stats", profileService.statsFor(user.getUserId()));
-		model.addAttribute("myReviews", reviewService.listMyReviews(user.getUserId()));
 		model.addAttribute("profileMessage", profileMessage);
 		model.addAttribute("profileError", profileError);
 		return "profile";
-	}
-
-	@PostMapping("/profile/reviews/{reviewId}/update")
-	public String updateMyReview(
-			@PathVariable Integer reviewId,
-			@RequestParam("rating") double rating,
-			@RequestParam(value = "comment", required = false) String comment,
-			@RequestParam(value = "spoiler", defaultValue = "false") boolean spoiler,
-			@AuthenticationPrincipal LoginUserPrincipal user,
-			RedirectAttributes redirectAttributes) {
-		try {
-			reviewService.updateMyReview(reviewId, user.getUserId(), rating, comment, spoiler);
-			redirectAttributes.addFlashAttribute("myReviewMessage", "レビューを更新しました。");
-		} catch (IllegalArgumentException ex) {
-			redirectAttributes.addFlashAttribute("myReviewError", ex.getMessage());
-		} catch (Exception ex) {
-			redirectAttributes.addFlashAttribute("myReviewError", "レビューを更新できませんでした。");
-		}
-		return "redirect:/profile";
-	}
-
-	@PostMapping("/profile/reviews/{reviewId}/delete")
-	public String deleteMyReview(
-			@PathVariable Integer reviewId,
-			@AuthenticationPrincipal LoginUserPrincipal user,
-			RedirectAttributes redirectAttributes) {
-		try {
-			reviewService.deleteMyReview(reviewId, user.getUserId());
-			redirectAttributes.addFlashAttribute("myReviewMessage", "レビューを削除しました。");
-		} catch (IllegalArgumentException ex) {
-			redirectAttributes.addFlashAttribute("myReviewError", ex.getMessage());
-		} catch (Exception ex) {
-			redirectAttributes.addFlashAttribute("myReviewError", "レビューを削除できませんでした。");
-		}
-		return "redirect:/profile";
 	}
 
 	@PostMapping("/profile/name")
@@ -134,4 +91,3 @@ public class ProfileController {
 		}
 	}
 }
-

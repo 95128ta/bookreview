@@ -20,6 +20,7 @@
 					<li sec:authorize="isAuthenticated()"><a th:href="@{/reading}">読書中</a></li>
 					<li sec:authorize="isAuthenticated()"><a th:href="@{/bookmarks}">ブックマーク</a></li>
 					<li sec:authorize="isAuthenticated()"><a th:href="@{/profile}">マイページ</a></li>
+					<li sec:authorize="isAuthenticated()"><a th:href="@{/my-reviews}">自分のレビュー</a></li>
 					<li sec:authorize="hasRole('ADMIN')"><a th:href="@{/admin/books}">書籍管理</a></li>
 					<li sec:authorize="hasRole('ADMIN')"><a th:href="@{/admin/users}">ユーザー管理</a></li>
 				</ul>

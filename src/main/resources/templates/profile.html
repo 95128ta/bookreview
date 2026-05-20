@@ -7,9 +7,6 @@
 	<h1 class="page-title">マイページ</h1>
 	<p class="msg-ok" th:if="${profileMessage != null and !#strings.isEmpty(profileMessage)}" th:text="${profileMessage}">ok</p>
 	<p class="msg-err" th:if="${profileError != null and !#strings.isEmpty(profileError)}" th:text="${profileError}">err</p>
-	<p class="msg-ok" th:if="${myReviewMessage != null and !#strings.isEmpty(myReviewMessage)}" th:text="${myReviewMessage}">ok</p>
-	<p class="msg-err" th:if="${myReviewError != null and !#strings.isEmpty(myReviewError)}" th:text="${myReviewError}">err</p>
-
 	<div class="card">
 		<p class="muted" style="margin: 0 0 0.5rem;">ログイン ID</p>
 		<p style="margin: 0 0 1rem; font-weight: 600;" th:text="${loginId}">id</p>
@@ -23,52 +20,14 @@
 		</div>
 	</div>
 
-	<section class="card panel my-reviews-section">
+	<section class="card panel">
 		<h2 class="section-title">自分のレビュー</h2>
-		<p class="muted my-reviews-lead" th:if="${#lists.isEmpty(myReviews)}">まだレビューを投稿していません。書籍詳細から投稿できます。</p>
-		<div class="my-reviews" th:if="${!#lists.isEmpty(myReviews)}">
-			<article class="my-review-card" th:each="row : ${myReviews}">
-				<div class="my-review-card__head">
-					<a class="my-review-card__title" th:href="@{/books/{id}(id=${row.review.bookId})}" th:text="${row.bookTitle}">書籍タイトル</a>
-					<a class="btn btn--secondary btn--sm" th:href="@{/books/{id}(id=${row.review.bookId})}">書籍ページへ</a>
-				</div>
-				<div class="my-review-card__meta">
-					<time th:datetime="${row.review.createdAt}" th:text="${#temporals.format(row.review.createdAt, 'yyyy-MM-dd HH:mm')}">日時</time>
-					<span class="my-review-card__sep" aria-hidden="true">·</span>
-					<span th:text="${#numbers.formatDecimal(row.review.rating, 1, 1)} + ' 点'">5.0点</span>
-					<span th:if="${row.review.spoiler != null and row.review.spoiler == 1}" class="spoiler">ネタバレあり</span>
-				</div>
-				<div class="my-review-card__body" th:if="${row.review.comment != null and !#strings.isEmpty(row.review.comment)}" th:text="${row.review.comment}">コメント</div>
-				<p class="muted my-review-card__empty" th:if="${row.review.comment == null or #strings.isEmpty(row.review.comment)}">（コメントなし）</p>
-				<div class="my-review-card__actions">
-					<details class="my-review-edit">
-						<summary class="my-review-edit__summary">編集</summary>
-						<form class="form-stack my-review-edit__form" th:action="@{/profile/reviews/{rid}/update(rid=${row.review.reviewId})}" method="post">
-							<label th:for="|rating-${row.review.reviewId}|">評価（0.5〜5）</label>
-							<select th:id="|rating-${row.review.reviewId}|" name="rating" required>
-								<option th:each="step : ${#numbers.sequence(1, 10)}"
-										th:value="${step * 0.5}"
-										th:selected="${row.review.rating != null and #numbers.formatDecimal(row.review.rating, 1, 1) == #numbers.formatDecimal(step * 0.5, 1, 1)}"
-										th:text="${#numbers.formatDecimal(step * 0.5, 1, 1)} + ' 点'">1点</option>
-							</select>
-							<label th:for="|comment-${row.review.reviewId}|">コメント（任意、4000文字まで）</label>
-							<textarea th:id="|comment-${row.review.reviewId}|" name="comment" maxlength="4000" rows="4" placeholder="感想を書いてください"
-									th:text="${row.review.comment != null ? row.review.comment : ''}"></textarea>
-							<label class="my-review-edit__check">
-								<input type="checkbox" name="spoiler" value="true" th:checked="${row.review.spoiler != null and row.review.spoiler == 1}" />
-								ネタバレを含む
-							</label>
-							<div class="form-actions">
-								<button type="submit" class="btn btn--primary">更新</button>
-							</div>
-						</form>
-					</details>
-					<form class="form-inline" th:action="@{/profile/reviews/{rid}/delete(rid=${row.review.reviewId})}" method="post"
-							onsubmit="return confirm('このレビューを削除しますか？');">
-						<button type="submit" class="btn btn--danger btn--sm">削除</button>
-					</form>
-				</div>
-			</article>
+		<p class="muted" th:if="${stats != null and stats.reviewCount == 0}">まだレビューを投稿していません。</p>
+		<p th:if="${stats != null and stats.reviewCount > 0}">
+			<strong th:text="${stats.reviewCount}">0</strong> 件のレビューを投稿しています。
+		</p>
+		<div class="form-actions" style="margin-top: 0.75rem;">
+			<a class="btn btn--primary" th:href="@{/my-reviews}">自分のレビュー一覧を開く</a>
 		</div>
 	</section>
 
