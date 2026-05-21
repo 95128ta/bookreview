@@ -11,22 +11,37 @@
 		<span aria-hidden="true">/</span>
 		<a th:href="@{/}">トップ</a>
 	</nav>
-	<h1 class="page-title" th:text="${book.title}">タイトル</h1>
-	<p class="lead">
-		<span th:text="${book.author}">著者</span>
-		<span> · </span>
-		<span th:text="${book.publisher != null and !#strings.isEmpty(book.publisher)} ? ${book.publisher} : '出版社未設定'">出版社</span>
-	</p>
 
-	<div class="card">
-		<div class="stack">
-			<p><span class="field-label" style="display: inline; margin: 0;">出版日:</span> <span th:text="${book.publishedDate != null ? #temporals.format(book.publishedDate, 'yyyy-MM-dd') : '未設定'}">—</span></p>
-			<p><span class="field-label" style="display: inline; margin: 0;">説明:</span> <span th:text="${book.description != null and !#strings.isEmpty(book.description) ? book.description : 'なし'}">—</span></p>
-			<p style="margin: 0;">
-				<span class="field-label" style="display: inline; margin: 0;">販売URL:</span>
-				<a th:if="${book.salesUrl != null and !#strings.isEmpty(book.salesUrl)}" th:href="${book.salesUrl}" target="_blank" rel="noopener noreferrer" th:text="${book.salesUrl}">url</a>
-				<span class="muted" th:if="${book.salesUrl == null or #strings.isEmpty(book.salesUrl)}">未設定</span>
+	<div class="card book-hero">
+		<div class="book-hero__cover">
+			<img th:replace="~{fragments :: bookCoverImg(${book})}" />
+			<div class="book-cover book-cover--empty"
+					th:if="${book.imagePath == null or #strings.isEmpty(book.imagePath)}"
+					aria-hidden="true">表紙なし</div>
+		</div>
+		<div class="book-hero__body">
+			<h1 class="book-hero__title" th:text="${book.title}">タイトル</h1>
+			<p class="book-hero__meta">
+				<span th:text="${book.author}">著者</span>
+				<span th:if="${book.publisher != null and !#strings.isEmpty(book.publisher)}">
+					<span aria-hidden="true"> · </span>
+					<span th:text="${book.publisher}">出版社</span>
+				</span>
+				<span th:if="${book.publishedDate != null}">
+					<span aria-hidden="true"> · </span>
+					<span th:text="|${#temporals.format(book.publishedDate, 'yyyy年M月d日')}発売|">発売日</span>
+				</span>
 			</p>
+			<div class="book-hero__actions">
+				<a th:replace="~{fragments :: bookSalesButton(${book})}"></a>
+				<p class="muted book-hero__sales-hint" th:if="${book.salesUrl == null or #strings.isEmpty(book.salesUrl)}">
+					販売ページの URL は管理者が「販売 URL」に登録すると表示されます。
+				</p>
+			</div>
+			<section class="book-hero__synopsis" th:if="${book.description != null and !#strings.isEmpty(book.description)}">
+				<h2 class="subsection-title">作品紹介・あらすじ</h2>
+				<p th:text="${book.description}">説明</p>
+			</section>
 		</div>
 	</div>
 

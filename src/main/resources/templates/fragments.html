@@ -44,5 +44,22 @@
 	<a class="admin-subnav__link" th:classappend="${active == 'books'} ? ' admin-subnav__link--active' : ''" th:href="@{/admin/books}">書籍</a>
 	<a class="admin-subnav__link" th:classappend="${active == 'users'} ? ' admin-subnav__link--active' : ''" th:href="@{/admin/users}">ユーザー</a>
 </nav>
+
+<!-- 表紙: image_path に https://...jpg など直接画像URL、または static 配下の相対パス -->
+<img th:fragment="bookCoverImg(book)"
+		th:if="${book.imagePath != null and !#strings.isEmpty(book.imagePath)}"
+		class="book-cover__img"
+		th:src="${#strings.startsWith(book.imagePath, 'http')} ? ${book.imagePath} : @{'/' + ${book.imagePath}}"
+		th:alt="|${book.title}の表紙|"
+		loading="lazy"
+		referrerpolicy="no-referrer" />
+
+<a th:fragment="bookSalesButton(book)"
+		th:if="${book.salesUrl != null and !#strings.isEmpty(book.salesUrl)}"
+		class="btn btn--amazon"
+		th:href="${book.salesUrl}"
+		target="_blank"
+		rel="noopener noreferrer"
+		th:text="${#strings.containsIgnoreCase(book.salesUrl, 'amazon.co') or #strings.containsIgnoreCase(book.salesUrl, 'amazon.com')} ? 'Amazon詳細ページへ' : '販売ページへ'">販売ページへ</a>
 </body>
 </html>

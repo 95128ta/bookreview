@@ -21,10 +21,14 @@
 			<textarea id="description" th:field="*{description}"></textarea>
 			<label for="publishedDate">出版日</label>
 			<input id="publishedDate" type="date" th:field="*{publishedDate}" />
-			<label for="imagePath">画像パス</label>
-			<input id="imagePath" type="text" th:field="*{imagePath}" />
-			<label for="salesUrl">販売 URL</label>
-			<input id="salesUrl" type="text" th:field="*{salesUrl}" />
+			<label for="imagePath">表紙画像 URL</label>
+			<input id="imagePath" type="url" th:field="*{imagePath}"
+					placeholder="https://.../cover.jpg（.jpg / .png など画像ファイルの直接リンク）" />
+			<p class="muted form-hint">商品ページ（.html）ではなく、画像そのものの URL を入れてください。</p>
+			<label for="salesUrl">販売 URL（Amazon など）</label>
+			<input id="salesUrl" type="url" th:field="*{salesUrl}"
+					placeholder="https://www.amazon.co.jp/dp/..." />
+			<p class="muted form-hint">詳細ページの「Amazon詳細ページへ」ボタンのリンク先になります。</p>
 			<div class="form-actions">
 				<button type="submit" class="btn btn--primary">保存</button>
 			</div>

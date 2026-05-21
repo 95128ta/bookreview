@@ -16,8 +16,15 @@
 
 	<div class="book-grid" th:if="${!#lists.isEmpty(books)}">
 		<a class="card card--link book-card" th:each="book : ${books}" th:href="@{/books/{id}(id=${book.bookId})}">
-			<div class="title" th:text="${book.title}">タイトル</div>
-			<p class="meta" th:text="|著者: ${book.author}|">著者</p>
+			<div class="book-card__layout">
+				<div class="book-card__cover" th:if="${book.imagePath != null and !#strings.isEmpty(book.imagePath)}">
+					<img th:replace="~{fragments :: bookCoverImg(${book})}" />
+				</div>
+				<div class="book-card__text">
+					<div class="title" th:text="${book.title}">タイトル</div>
+					<p class="meta" th:text="|著者: ${book.author}|">著者</p>
+				</div>
+			</div>
 		</a>
 	</div>
 	<p class="muted" th:if="${#lists.isEmpty(books)}">該当する書籍がありません。</p>
